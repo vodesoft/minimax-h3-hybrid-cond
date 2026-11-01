@@ -24,12 +24,12 @@ Required model inputs are the H3 video VAE, H3 audio VAE, and the matching H3 CL
 |---|---|---|
 | `first_frame` | `fl2va` keyframe at frame 0 | Not a Picture tag by default |
 | `last_frame` | `fl2va` final keyframe | Not a Picture tag |
-| `ref_image_1` | `ref2va` image reference | `<Picture 1>` |
-| `ref_image_2` | `ref2va` image reference | `<Picture 2>` |
-| `ref_video_1` | `ref2va` video reference | `<Video 1>` |
-| `ref_audio_1` | `ref2va` audio reference | `<Audio 1>` |
+| `ref_image_0` | `ref2va` image reference | `<Picture 1>` |
+| `ref_image_1` | `ref2va` image reference | `<Picture 2>` |
+| `ref_video_0` | `ref2va` video reference | `<Video 1>` |
+| `ref_audio_0` | `ref2va` audio reference | `<Audio 1>` |
 
-Reference numbering follows the order of the connected reference inputs. Set `also_ref_first_frame` to `true` only when the first frame should also become the next Picture reference; it is appended after user reference images.
+Reference slots are zero-indexed (`ref_image_0`, `ref_video_0`, `ref_audio_0`, ...), but the prompt tags they map to are one-based and follow connection order: the first connected reference becomes `<Picture 1>`. Set `also_ref_first_frame` to `true` only when the first frame should also become the next Picture reference; it is appended after user reference images.
 
 ## 1. R2V-only example
 
@@ -38,8 +38,8 @@ Use this when the video should be controlled by reference media without an I2V s
 ```text
 first_frame: empty
 last_frame: empty
-ref_image_1: cat reference image
-ref_image_2: optional character or style reference
+ref_image_0: cat reference image
+ref_image_1: optional character or style reference
 also_ref_first_frame: false
 ```
 
@@ -61,7 +61,7 @@ Use this when the first image must be locked as the opening frame.
 ```text
 first_frame: woman opening image
 last_frame: optional final image
-ref_image_1: empty
+ref_image_0: empty
 also_ref_first_frame: false
 ```
 
@@ -82,7 +82,7 @@ The same Hybrid node combines both inputs in one conditioning payload:
 
 ```text
 first_frame  → woman image / opening keyframe
-ref_image_1  → cat image / identity reference
+ref_image_0  → cat image / identity reference
 ```
 
 Use the workflow with either H3 diffusion checkpoint.
@@ -92,7 +92,7 @@ Use the workflow with either H3 diffusion checkpoint.
 ```text
 Load Diffusion Model: minimax_h3_fl2va_bf16.safetensors
 first_frame: connected
-ref_image_1: connected
+ref_image_0: connected
 last_frame: optional
 also_ref_first_frame: false
 ```
@@ -104,7 +104,7 @@ This is preferred when locking the first frame is the main priority. The first f
 ```text
 Load Diffusion Model: minimax_h3_ref2va_bf16.safetensors
 first_frame: connected
-ref_image_1: connected
+ref_image_0: connected
 last_frame: optional
 also_ref_first_frame: false
 ```
@@ -125,7 +125,7 @@ Preserve both characters and keep the motion readable.
 The node combines both payload sections internally:
 ## Native audio
 
-Connect `ref_audio_1` for an audio reference, or use the H3 audio VAE output for generated native audio. Keep dialogue, sound effects, and timing instructions in the prompt. The node always creates the H3 audio/video latent pair.
+Connect `ref_audio_0` for an audio reference, or use the H3 audio VAE output for generated native audio. Keep dialogue, sound effects, and timing instructions in the prompt. The node always creates the H3 audio/video latent pair.
 
 ## Important settings
 
