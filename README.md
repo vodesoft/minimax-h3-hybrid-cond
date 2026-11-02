@@ -22,14 +22,23 @@ Required model inputs are the H3 video VAE, H3 audio VAE, and the matching H3 CL
 
 | Node input | H3 function | Prompt tag |
 |---|---|---|
-| `first_frame` | `fl2va` keyframe at frame 0 | Not a Picture tag by default |
+| `first_frame` | `fl2va` keyframe at frame 0 | See `also_ref_first_frame` below |
 | `last_frame` | `fl2va` final keyframe | Not a Picture tag |
 | `ref_image_0` | `ref2va` image reference | `<Picture 1>` |
 | `ref_image_1` | `ref2va` image reference | `<Picture 2>` |
 | `ref_video_0` | `ref2va` video reference | `<Video 1>` |
 | `ref_audio_0` | `ref2va` audio reference | `<Audio 1>` |
 
-Reference slots are zero-indexed (`ref_image_0`, `ref_video_0`, `ref_audio_0`, ...), but the prompt tags they map to are one-based and follow connection order: the first connected reference becomes `<Picture 1>`. Set `also_ref_first_frame` to `true` only when the first frame should also become the next Picture reference; it is appended after user reference images.
+Reference slots are zero-indexed (`ref_image_0`, `ref_video_0`, `ref_audio_0`, ...), but the prompt tags they map to are one-based and follow connection order: the first connected reference becomes `<Picture 1>`.
+
+The `first_frame` input is always a `fl2va` keyframe at frame 0. Whether it also gets a Picture tag depends on the `also_ref_first_frame` switch:
+
+| `also_ref_first_frame` | Effect on `first_frame` | Example with one connected ref image (`ref_image_0`) |
+|---|---|---|
+| `false` (default) | Keyframe only, no Picture tag. `<Picture 1>` refers to `ref_image_0`. | `first_frame` = keyframe; `ref_image_0` -> `<Picture 1>` |
+| `true` | Keyframe AND an extra reference appended after all user refs, so it becomes the next Picture ordinal: `<Picture N+1>`, where N is the number of connected image references. | `first_frame` = keyframe + `<Picture 2>`; `ref_image_0` -> `<Picture 1>` |
+
+When `also_ref_first_frame=true`, the first frame's Picture ordinal comes after every user reference, so it never renumbers the existing `<Picture N>` tags.
 
 ## 1. R2V-only example
 
